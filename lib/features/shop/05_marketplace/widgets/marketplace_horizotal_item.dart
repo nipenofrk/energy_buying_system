@@ -7,7 +7,7 @@ import 'package:energy_trade/utils/devices/device_utility.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class MarketHorizontalItems extends StatelessWidget {
+class MarketHorizontalItems extends StatefulWidget {
   const MarketHorizontalItems({
     super.key,
     this.containerColor = Colors.blue,
@@ -19,9 +19,27 @@ class MarketHorizontalItems extends StatelessWidget {
   final String energyClass;
 
   @override
+  State<MarketHorizontalItems> createState() => _MarketHorizontalItemsState();
+}
+
+class _MarketHorizontalItemsState extends State<MarketHorizontalItems> {
+  int _units = 2;
+  double _pricePerUnit = 400.0;
+
+  @override
   Widget build(BuildContext context) {
+    double totalPrice = _units * _pricePerUnit;
+
     return InkWell(
-      onTap: () => Get.to(() => const MarketplaceItemDetail()),
+      onTap: () => Get.to(() => MarketplaceItemDetail(
+        energyClass: widget.energyClass,
+        supplier: "HE Power Solution",
+        status: "Available, 100kWh",
+        pricePerUnit: _pricePerUnit,
+        units: _units,
+        totalPrice: totalPrice,
+        address: "14126, Mbweni JKT, DSM",
+      )),
       child: Material(
         elevation: 5,
         color: Colors.grey.shade200,
@@ -32,16 +50,15 @@ class MarketHorizontalItems extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                  width: 95,
-                  height: 95,
-                  padding: EdgeInsets.zero,
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(10)),
-                  child: const CcRoundedImage(imageUrl: CcImages.company1)),
-
+                width: 95,
+                height: 95,
+                padding: EdgeInsets.zero,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const CcRoundedImage(imageUrl: CcImages.company1),
+              ),
               const SizedBox(width: CcSizes.spaceBtnItems_2),
-
-              // category: can be business, analysis, insights, education etc
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -52,27 +69,27 @@ class MarketHorizontalItems extends StatelessWidget {
                         width: 100,
                         padding: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
-                            color: containerColor,
-                            borderRadius: BorderRadius.circular(3)),
+                          color: widget.containerColor,
+                          borderRadius: BorderRadius.circular(3),
+                        ),
                         child: Center(
                           child: Text(
-                            energyClass,
+                            widget.energyClass,
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineSmall!
-                                .copyWith(color: textColor, fontSize: 13),
+                                .copyWith(
+                                  color: widget.textColor,
+                                  fontSize: 13,
+                                ),
                           ),
                         ),
                       ),
                     ],
                   ),
-
                   const SizedBox(height: CcSizes.spaceBtnItems_2 / 2),
-
-                  // company
                   Row(
                     children: [
-                      // title
                       Container(
                         color: Colors.transparent,
                         padding: EdgeInsets.zero,
@@ -87,8 +104,6 @@ class MarketHorizontalItems extends StatelessWidget {
                           maxLines: 3,
                         ),
                       ),
-
-                      // subtitle
                       Text(
                         "    : HE Power Solution",
                         style: Theme.of(context)
@@ -100,13 +115,9 @@ class MarketHorizontalItems extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: CcSizes.spaceBtnItems_2 / 3),
-
-                  // terms
                   Row(
                     children: [
-                      // title
                       Container(
                         color: Colors.transparent,
                         padding: EdgeInsets.zero,
@@ -121,8 +132,6 @@ class MarketHorizontalItems extends StatelessWidget {
                           maxLines: 3,
                         ),
                       ),
-
-                      // subtitle
                       Text(
                         "    : Available, 100kWh",
                         style: Theme.of(context)
@@ -134,13 +143,9 @@ class MarketHorizontalItems extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: CcSizes.spaceBtnItems_2 / 3),
-
-                  // price
                   Row(
                     children: [
-                      // title
                       Container(
                         color: Colors.transparent,
                         padding: EdgeInsets.zero,
@@ -155,8 +160,6 @@ class MarketHorizontalItems extends StatelessWidget {
                           maxLines: 3,
                         ),
                       ),
-
-                      // subtitle
                       Text(
                         "       per kWh",
                         style: Theme.of(context)
@@ -168,13 +171,9 @@ class MarketHorizontalItems extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: CcSizes.spaceBtnItems_2 / 3),
-
-                  // location
                   Row(
                     children: [
-                      // title
                       Container(
                         color: Colors.transparent,
                         padding: EdgeInsets.zero,
@@ -189,8 +188,6 @@ class MarketHorizontalItems extends StatelessWidget {
                           maxLines: 3,
                         ),
                       ),
-
-                      // subtitle
                       Text(
                         ":  14126, Mbweni JKT, DSM",
                         style: Theme.of(context)
@@ -202,25 +199,29 @@ class MarketHorizontalItems extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: CcSizes.spaceBtnItems_2 / 3),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
-                          Container(
-                            width: 25,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Colors.black),
-                              borderRadius: BorderRadius.circular(200),
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                if (_units > 1) _units--;
+                              });
+                            },
+                            child: Container(
+                              width: 25,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.black),
+                                borderRadius: BorderRadius.circular(200),
+                              ),
+                              child: const Icon(Icons.remove, color: Colors.black),
                             ),
-                            child: const Icon(Icons.remove, color: Colors.black,),
                           ),
-
                           const SizedBox(width: 10),
-
                           Container(
                             height: 25,
                             width: 50,
@@ -229,42 +230,67 @@ class MarketHorizontalItems extends StatelessWidget {
                               color: Colors.grey.shade200,
                               border: Border.all(),
                             ),
-                            child: Center(child: Text("2", style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.black, fontSize: 13),)),
-                          ),
-
-                          const SizedBox(width: 10),
-
-                          Container(
-                            width: 25,
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(200),
+                            child: Center(
+                              child: Text(
+                                "$_units",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(color: Colors.black, fontSize: 13),
+                              ),
                             ),
-                            child: const Icon(Icons.add, color: Colors.white,),
+                          ),
+                          const SizedBox(width: 10),
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                _units++;
+                              });
+                            },
+                            child: Container(
+                              width: 25,
+                              decoration: BoxDecoration(
+                                color: Colors.black,
+                                borderRadius: BorderRadius.circular(200),
+                              ),
+                              child: const Icon(Icons.add, color: Colors.white),
+                            ),
                           ),
                         ],
                       ),
-
-                      SizedBox(width: CcDeviceUtils.getScreenWidth(context) / 5,),
-
+                      SizedBox(
+                        width: CcDeviceUtils.getScreenWidth(context) / 5,
+                      ),
                       InkWell(
-                        onTap: () => Get.to(() => const CheckoutScreen()),
+                        onTap: () => Get.to(() => CheckoutScreen(
+                          energyClass: widget.energyClass,
+                          supplier: "HE Power Solution",
+                          status: "Available, 100kWh",
+                          pricePerUnit: _pricePerUnit,
+                          units: _units,
+                          totalPrice: totalPrice,
+                          address: "14126, Mbweni JKT, DSM",
+                        )),
                         child: Container(
                           height: 30,
                           width: 50,
                           decoration: BoxDecoration(
-                            color: containerColor,
+                            color: widget.containerColor,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Center(child: Text("Buy", style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white, fontSize: 13),),
+                          child: Center(
+                            child: Text(
+                              "Buy",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall!
+                                  .copyWith(color: Colors.white, fontSize: 13),
+                            ),
                           ),
                         ),
                       ),
-
-
                     ],
                   ),
-
                   const SizedBox(height: CcSizes.spaceBtnItems_2 / 3),
                 ],
               ),

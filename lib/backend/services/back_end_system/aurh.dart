@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:energy_trade/backend/services/back_end_system/constants.dart';
+import 'package:energy_trade/backend/services/service_api.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 
@@ -116,3 +117,20 @@ class NewsArticle {
   }
 }
 
+//market place
+class MarketClass {
+  final String marketAPi = "$baseUrl/api/energy/";
+
+
+  Future<List<Provider>> fetchProviders() async {
+    final response = await http.get(Uri.parse(marketAPi));
+
+    if (response.statusCode == 200) {
+      List<dynamic> body = jsonDecode(response.body);
+      List<Provider> providers = body.map((dynamic item) => Provider.fromJson(item)).toList();
+      return providers;
+    } else {
+      throw Exception('Failed to load providers');
+    }
+  }
+}

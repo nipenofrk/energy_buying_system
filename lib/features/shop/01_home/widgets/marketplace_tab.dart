@@ -1,48 +1,43 @@
+import 'package:energy_trade/backend/services/back_end_system/aurh.dart';
+import 'package:energy_trade/backend/services/service_api.dart';
+import 'package:flutter/material.dart';
 import 'package:energy_trade/features/shop/05_marketplace/widgets/marketplace_table_filter.dart';
 import 'package:energy_trade/utils/constants/sizes.dart';
-import 'package:flutter/material.dart';
 
-class MarketplaceTab extends StatelessWidget {
+class MarketplaceTab extends StatefulWidget {
   const MarketplaceTab({super.key});
 
   @override
+  _MarketplaceTabState createState() => _MarketplaceTabState();
+}
+
+class _MarketplaceTabState extends State<MarketplaceTab> {
+  late Future<List<Provider>> futureProviders;
+  final MarketClass apiService = MarketClass();
+  String selectedCategory = "All Categories"; // Default selection
+
+  @override
+  void initState() {
+    super.initState();
+    futureProviders = apiService.fetchProviders();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // categories
     var categories = [
+      "All Categories",
       "Solar",
       "Wind",
       "Biomass",
     ];
 
-    // providers details
-    var providers = [
-      {
-        "seller": "HE Power Solution",
-        "price": "400/=",
-        "kWh": "10000 kWh",
-        "category": "Solar"
-      },
-            {
-        "seller": "Kwilasa's Rooftop",
-        "price": "450/=",
-        "kWh": "10000 kWh",
-        "category": "Solar"
-      },
-      {
-        "seller": "Green Energy Corp",
-        "price": "500/=",
-        "kWh": "8000 kWh",
-        "category": "Wind"
-      },
-      {
-        "seller": "Eco Bio Energy",
-        "price": "450/=",
-        "kWh": "4000 kWh",
-        "category": "Biomass"
-      },
+    var sellers = [
+      "HE Power Solution",
+      "Kwilasa's Rooftop",
+      "Green Energy Corp",
+      "Eco Bio Energy"
     ];
 
-    // content
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -50,17 +45,7 @@ class MarketplaceTab extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                // summary on the energy owned by the user
-                // const AnalyticsSummary(),
-                //
-                // const SizedBox(height: CcSizes.spaceBtnItems_1),
-                //
-                // // divider
-                // const Divider(color: Colors.black26),
-
                 const SizedBox(height: CcSizes.spaceBtnItems_1),
-
-                // energy type
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -74,28 +59,33 @@ class MarketplaceTab extends StatelessWidget {
                             .copyWith(fontSize: 16),
                       ),
                     ),
-
-                    // filter box
                     Expanded(
                       flex: 2,
                       child: SizedBox(
                         width: 100,
                         height: 60,
-                        child: DropdownButtonFormField(
+                        child: DropdownButtonFormField<String>(
+                          value: selectedCategory, // Set default value
                           items: categories.map((category) {
-                            return DropdownMenuItem(
-                                value: category, child: Text(category));
+                            return DropdownMenuItem<String>(
+                              value: category,
+                              child: Text(category),
+                            );
                           }).toList(),
-                          onChanged: (value) {},
+                          onChanged: (value) {
+                            setState(() {
+                              selectedCategory = value!;
+                            });
+                          },
                           decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.transparent,
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    const BorderSide(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              hintText: "Solar"),
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            hintText: "All Categories",
+                          ),
                         ),
                       ),
                     ),
@@ -104,146 +94,178 @@ class MarketplaceTab extends StatelessWidget {
               ],
             ),
           ),
+          FutureBuilder<List<Provider>>(
+            future: futureProviders,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (snapshot.hasError) {
+                return Text("Error: ${snapshot.error}");
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Text("No providers available");
+              } else {
+                var providerData = snapshot.data!;
+                if (selectedCategory != "All Categories") {
+                  providerData = providerData
+                      .where((provider) =>
+                          provider.category.toLowerCase() ==
+                          selectedCategory.toLowerCase())
+                      .toList();
+                }
 
-          // table
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              headingRowColor:
-                  MaterialStateProperty.all(Colors.grey.withOpacity(0.3)),
-              columnSpacing: 25,
-              columns: const [
-                DataColumn(
-                  label: Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text("Seller"),
-                      ],
+                var providersWithSellers = List.generate(
+                  providerData.length,
+                  (index) {
+                    return {
+                      'seller': sellers[index % sellers.length],
+                      'price': '${providerData[index].price} tsh',
+                      'kWh': '${providerData[index].kWh} kWh',
+                      'category': providerData[index].category
+                    };
+                  },
+                );
+
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: DataTable(
+                    headingRowColor: WidgetStateProperty.all(
+                      Colors.grey.withOpacity(0.3),
                     ),
-                  ),
-                ),
-                DataColumn(
-                  label: Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Price"),
-                      ],
-                    ),
-                  ),
-                ),
-                DataColumn(
-                  label: Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("kWh Available"),
-                      ],
-                    ),
-                  ),
-                ),
-                DataColumn(
-                  label: Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Energy Category"),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-              rows: providers.map((provider) {
-                return DataRow(
-                  color: MaterialStateProperty.resolveWith(
-                      (states) => Colors.grey.shade200),
-                  cells: [
-                    DataCell(
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            color: Colors.transparent,
-                            width: 70,
-                            child: Text(
-                              provider["seller"]!,
-                              softWrap: true,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall!
-                                  .copyWith(fontSize: 13),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
+                    columnSpacing: 25,
+                    columns: const [
+                      DataColumn(
+                        label: Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text("Seller"),
+                            ],
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("Price"),
+                            ],
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("kWh Available"),
+                            ],
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("Energy Category"),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                    rows: providersWithSellers.map((provider) {
+                      return DataRow(
+                        color: WidgetStateProperty.resolveWith(
+                          (states) => Colors.grey.shade200,
+                        ),
+                        cells: [
+                          DataCell(
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Container(
+                                  color: Colors.transparent,
+                                  width: 70,
+                                  child: Text(
+                                    provider['seller']!,
+                                    softWrap: true,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall!
+                                        .copyWith(fontSize: 13),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: Container(
+                                color: Colors.transparent,
+                                width: 50,
+                                child: Center(
+                                  child: Text(
+                                    provider['price']!,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall!
+                                        .copyWith(fontSize: 14),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: Text(
+                                provider['kWh']!,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(fontSize: 14),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Center(
+                              child: Container(
+                                height: 20,
+                                width: 80,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(3),
+                                  color: Colors.blue,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    provider['category']!,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall!
+                                        .copyWith(
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                        ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                    DataCell(
-                      Center(
-                        child: Container(
-                          color: Colors.transparent,
-                          width: 50,
-                          child: Center(
-                            child: Text(
-                              provider["price"]!,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall!
-                                  .copyWith(fontSize: 14),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Center(
-                        child: Text(
-                          provider["kWh"]!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall!
-                              .copyWith(fontSize: 14),
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Center(
-                        child: Container(
-                          height: 20,
-                          width: 80,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(3),
-                            color: Colors.blue,
-                          ),
-                          child: Center(
-                            child: Text(
-                              provider["category"]!,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall!
-                                  .copyWith(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                  ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                      );
+                    }).toList(),
+                  ),
                 );
-              }).toList(),
-            ),
+              }
+            },
           ),
-
           const Divider(),
-
           const SizedBox(height: CcSizes.spaceBtnItems_1),
-
           const MarketplaceTableFilter(),
-
           const SizedBox(height: CcSizes.spaceBtnItems_2),
         ],
       ),

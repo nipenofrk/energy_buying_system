@@ -14,7 +14,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class MarketplaceItemDetail extends StatelessWidget {
-  const MarketplaceItemDetail({super.key});
+  const MarketplaceItemDetail({
+    super.key,
+    required this.energyClass,
+    required this.supplier,
+    required this.status,
+    required this.pricePerUnit,
+    required this.units,
+    required this.totalPrice,
+    required this.address,
+  });
+
+  final String energyClass;
+  final String supplier;
+  final String status;
+  final double pricePerUnit;
+  final int units;
+  final double totalPrice;
+  final String address;
 
   @override
   Widget build(BuildContext context) {
@@ -34,18 +51,13 @@ class MarketplaceItemDetail extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                // imply leading
                 const CcAppBar(automaticallyImplyLeading: true)
               ],
             ),
-
-            // category: can be business, analysis, insights, education etc
             Padding(
               padding: const EdgeInsets.only(left: 20, right: 20),
               child: Column(
                 children: [
-                  // category: can be business, analysis, insights, education etc
                   Container(
                     height: 30,
                     width: 100,
@@ -63,28 +75,27 @@ class MarketplaceItemDetail extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: CcSizes.spaceBtnItems_2 / 2),
-
-                  // market product details
                   const MarketplaceProductAttributes(),
-
                   const SizedBox(height: CcSizes.spaceBtnItems_1),
-
-                  const BottomAddToCart(),
-
+                  BottomAddToCart(
+                    energyClass: energyClass,
+                    supplier: supplier,
+                    status: status,
+                    pricePerUnit: pricePerUnit,
+                    units: units,
+                    totalPrice: totalPrice,
+                    address: address,
+                  ),
                   const SizedBox(height: CcSizes.spaceBtnItems_1 * 2),
-
                   CcSectionHeading(
                     title: "Similar Offers",
                     showActionButton: true,
                     onPressed: () => Get.to(
                         () => const AllProductsScreen(title: "Similar Offers")),
                   ),
-
                   Column(
                     children: [
-                      // listview
                       ListView.separated(
                         itemCount: 3,
                         shrinkWrap: true,
@@ -93,7 +104,6 @@ class MarketplaceItemDetail extends StatelessWidget {
                         separatorBuilder: (content, index) =>
                             const SizedBox(height: CcSizes.spaceBtnItems_1),
                         itemBuilder: (context, index) =>
-                            // content
                             const MarketHorizontalItems(),
                       ),
                     ],

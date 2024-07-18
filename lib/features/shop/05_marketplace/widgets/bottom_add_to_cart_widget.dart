@@ -6,13 +6,27 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
 class BottomAddToCart extends StatelessWidget {
-  const BottomAddToCart({super.key});
+  const BottomAddToCart({
+    super.key,
+    required this.energyClass,
+    required this.supplier,
+    required this.status,
+    required this.pricePerUnit,
+    required this.units,
+    required this.totalPrice,
+    required this.address,
+  });
+
+  final String energyClass;
+  final String supplier;
+  final String status;
+  final double pricePerUnit;
+  final int units;
+  final double totalPrice;
+  final String address;
 
   @override
   Widget build(BuildContext context) {
-    // controller
-
-    // container
     return Material(
       elevation: 5,
       color: Colors.grey.shade200,
@@ -23,22 +37,16 @@ class BottomAddToCart extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // shall i use the add remove button instead of this or not.....
-            // depends on how the app reacts
             Row(
               children: [
-                // minus from cart
                 Material(
                   elevation: 5,
                   borderRadius: BorderRadius.circular(CcSizes.cardRadiusXs),
                   color: CcColors.grey,
                   child: Container(
                     decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(CcSizes.cardRadiusXs),
-                        topRight: Radius.circular(CcSizes.cardRadiusXs),
-                        bottomRight: Radius.circular(CcSizes.cardRadiusXs),
-                        bottomLeft: Radius.circular(CcSizes.cardRadiusXs),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(CcSizes.cardRadiusXs),
                       ),
                     ),
                     child: const SizedBox(
@@ -50,13 +58,9 @@ class BottomAddToCart extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                // item count
                 const SizedBox(width: CcSizes.spaceBtnItems_1),
                 Text("2 kWh", style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(width: CcSizes.spaceBtnItems_1),
-
-                // add to cart icon
                 InkWell(
                   onTap: () {},
                   child: Material(
@@ -65,11 +69,8 @@ class BottomAddToCart extends StatelessWidget {
                     borderRadius: BorderRadius.circular(CcSizes.cardRadiusXs),
                     child: Container(
                       decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(CcSizes.cardRadiusXs),
-                          topRight: Radius.circular(CcSizes.cardRadiusXs),
-                          bottomRight: Radius.circular(CcSizes.cardRadiusXs),
-                          bottomLeft: Radius.circular(CcSizes.cardRadiusXs),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(CcSizes.cardRadiusXs),
                         ),
                       ),
                       child: const SizedBox(
@@ -84,16 +85,23 @@ class BottomAddToCart extends StatelessWidget {
                 ),
               ],
             ),
-
-            // see if an error results in this functional block
             SizedBox(
               width: 100,
               child: ElevatedButton(
-                onPressed: () => Get.to(() => const CheckoutScreen()),
+                onPressed: () => Get.to(() => CheckoutScreen(
+                      energyClass: energyClass,
+                      supplier: supplier,
+                      status: status,
+                      pricePerUnit: pricePerUnit,
+                      units: units,
+                      totalPrice: totalPrice,
+                      address: address,
+                    )),
                 style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(CcSizes.md),
-                    backgroundColor: Colors.blue,
-                    side: const BorderSide(color: Colors.blue)),
+                  padding: const EdgeInsets.all(CcSizes.md),
+                  backgroundColor: Colors.blue,
+                  side: const BorderSide(color: Colors.blue),
+                ),
                 child: Center(
                   child: Text(
                     "Buy",

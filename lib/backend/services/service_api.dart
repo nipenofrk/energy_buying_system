@@ -60,3 +60,27 @@ class RestrationService {
     }
   }
 }
+//market place
+class Provider {
+  final String price;
+  final String kWh;
+  final String category;
+
+  Provider({required this.price, required this.kWh, required this.category});
+
+  factory Provider.fromJson(Map<String, dynamic> json) {
+    return Provider(
+      price: json['cost_per_unit'].toString(),
+      kWh: json['available_units'].toString(),
+      category: json['producer'] as String,
+    );
+  }
+}
+
+
+// {
+//     "cost_per_unit": 10.5,
+//     "available_units": 100,
+//     "producer":    "Wind"
+    
+// }
