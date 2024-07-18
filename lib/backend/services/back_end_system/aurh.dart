@@ -55,26 +55,23 @@ Future<dynamic> registerUser(
   var url = Uri.parse("$baseUrl/api/users/create/");
   var res = await http.post(url, body: data);
 
+  // Print the response for debugging
+  print('Response status: ${res.statusCode}');
+  print('Response body: ${res.body}');
+
   if (res.statusCode == 201) {
     Map<String, dynamic> json = jsonDecode(res.body);
-    if (json.containsKey("key")) {
-      String token = json["key"];
-      var user = await getUser(token); 
-      return user;
-    } else if (json.containsKey("email")) {
-      return Future.error(json["email"][0]);
-    } else if (json.containsKey("password")) {
-      return Future.error(json["password"][0]);
+
+    // Check if the response contains the expected message
+    if (json.containsKey("message")) {
+      return json["message"];
+    } else {
+      return Future.error("Unknown response format: missing 'message'.");
     }
   } else {
     return Future.error(jsonDecode(res.body)["error"] ?? "An unknown error occurred.");
   }
 }
-
-Future<dynamic> getUser(String token) async {
-  return null;
-}
-
 //explore page information
 
 Future<List<NewsArticle>> fetchNewsArticles() async {

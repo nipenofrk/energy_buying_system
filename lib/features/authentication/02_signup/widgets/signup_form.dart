@@ -146,7 +146,7 @@ class SignupForm extends StatelessWidget {
                         );
 
                         try {
-                          var statusCode = await registerUser(
+                          var user = await registerUser(
                             signupController.email.text,
                             signupController.password.text,
                             signupController.userName.text,
@@ -158,7 +158,7 @@ class SignupForm extends StatelessWidget {
 
                           Navigator.of(context).pop();
 
-                          if (statusCode == 201) {
+                          if (user != null) {
                             _showMessageDialog(context, "Registration successful!");
                             Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) {

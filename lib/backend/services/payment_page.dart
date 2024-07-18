@@ -6,14 +6,16 @@ import 'package:http/http.dart' as http;
 import 'package:uni_links2/uni_links.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class PaymentClass extends StatefulWidget {
-  const PaymentClass({Key? key}) : super(key: key);
+class PayPalPaymentForm extends StatefulWidget {
+  final double totalPrice;
+
+  const PayPalPaymentForm({required this.totalPrice, Key? key}) : super(key: key);
 
   @override
-  _PaymentClassState createState() => _PaymentClassState();
+  _PayPalPaymentFormState createState() => _PayPalPaymentFormState();
 }
 
-class _PaymentClassState extends State<PaymentClass> {
+class _PayPalPaymentFormState extends State<PayPalPaymentForm> {
   late StreamSubscription _sub;
 
   @override
@@ -49,6 +51,7 @@ class _PaymentClassState extends State<PaymentClass> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Payment successful')),
       );
+      Navigator.pop(context); // Navigate back after successful payment
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${responseData['error']}')),
@@ -59,6 +62,8 @@ class _PaymentClassState extends State<PaymentClass> {
   Future<void> createPayment(BuildContext context) async {
     dynamic response = await http.post(
       Uri.parse('$baseUrl/payment/create'),
+      body: json.encode({'amount': widget.totalPrice}), // Pass the amount to the backend
+      headers: {'Content-Type': 'application/json'},
     );
     var responseData = json.decode(response.body);
     if (responseData['approval_url'] != null) {
@@ -83,7 +88,7 @@ class _PaymentClassState extends State<PaymentClass> {
         backgroundColor: Colors.green,
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
-          'Make Payment Here ',
+          'Make Payment Here',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -110,20 +115,34 @@ class _PaymentClassState extends State<PaymentClass> {
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Amount',
+                  prefixIcon: Icon(Icons.money),
+                ),
+                initialValue: widget.totalPrice.toString(),
+                readOnly: true,
+              ),
+            ),
+            const SizedBox(height: 32),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () => createPayment(context),
-                  child: const Text('Pay with PayPal',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                  fontWeight: FontWeight.normal
-                  ),),
+                  child: const Text(
+                    'Pay with PayPal',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

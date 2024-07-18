@@ -37,7 +37,7 @@ class CcImages {
   static const String battery = "assets/images/energies/battery.png";
   static const String other1 = "assets/images/energies/other.jpeg";
 
-  static const String company1 = "assets/images/energies/company_image.png";
+  static const String company1 = "assets/images/energies/company_image.jpeg";
 
   // companies
   static const String bitcoin = "assets/images/companies/bitcoin!.png";
