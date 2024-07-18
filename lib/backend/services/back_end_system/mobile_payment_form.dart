@@ -1,9 +1,11 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:energy_trade/backend/services/back_end_system/mobile_payment_controller.dart';
+import 'package:energy_trade/features/shop/01_home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:energy_trade/backend/services/back_end_system/mobile_payment_controller.dart';
+import 'package:energy_trade/backend/services/back_end_system/constants.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+// Adjust the path as needed
 
 class MobilePaymentForm extends StatelessWidget {
   final double totalPrice;
@@ -22,7 +24,7 @@ class MobilePaymentForm extends StatelessWidget {
         backgroundColor: Colors.green,
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
-          'Make Payment Here ',
+          'Make Payment Here',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -36,7 +38,7 @@ class MobilePaymentForm extends StatelessWidget {
           child: Form(
             child: Column(
               children: [
-                 const SizedBox(height: 40),
+                const SizedBox(height: 40),
                 Obx(
                   () => DropdownButtonFormField<String>(
                     decoration: const InputDecoration(
@@ -69,7 +71,7 @@ class MobilePaymentForm extends StatelessWidget {
                     },
                   ),
                 ),
-                 const SizedBox(height: 30),
+                const SizedBox(height: 30),
                 TextFormField(
                   decoration: const InputDecoration(
                     labelText: 'Phone Number',
@@ -90,11 +92,13 @@ class MobilePaymentForm extends StatelessWidget {
                   readOnly: true,
                 ),
                 const SizedBox(height: 24),
-                
-                const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () {
-                    // Implement payment processing logic here
+                    processPayment(
+                      paymentController.phoneNumber.value,
+                      paymentController.amount.value,
+                      paymentController.selectedNetwork.value,
+                    );
                     Get.snackbar(
                       'Payment',
                       'Processing payment with ${paymentController.selectedNetwork.value}...',
@@ -113,31 +117,44 @@ class MobilePaymentForm extends StatelessWidget {
       ),
     );
   }
-}
 
-//payment simulation
+  Future<void> processPayment(
+      String phoneNumber, String amount, String network) async {
+    var url = Uri.parse('$baseUrl/api/transactions/');
+    var response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'Mobile_network': network,
+        'phone_number': phoneNumber,
+        'total_cost': amount,
+      }),
+    );
 
-Future<void> processPayment(
-    String phoneNumber, String amount, String network) async {
-  var url = Uri.parse('https://your-payment-api.com/pay');
-  var response = await http.post(
-    url,
-    body: {
-      'phone_number': phoneNumber,
-      'amount': amount,
-      'network': network,
-    },
-  );
-
-  if (response.statusCode == 200) {
-    var jsonResponse = jsonDecode(response.body);
-    // Handle successful payment response
-    print('Payment successful: $jsonResponse');
-  } else {
-    // Handle payment error
-    print('Payment failed: ${response.body}');
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      var jsonResponse = jsonDecode(response.body);
+      String message = jsonResponse['message'];
+      // Handle successful payment response
+      Get.snackbar(
+        'Payment',
+        'Payment successful: $message',
+        snackPosition: SnackPosition.TOP,
+      );
+      Future.delayed(const Duration(seconds: 2), () {
+        Get.to(() => const HomeScreen());
+      });
+    } else {
+      var jsonResponse = jsonDecode(response.body);
+      String message = jsonResponse['message'];
+      // Handle payment error
+      Get.snackbar(
+        'Payment',
+        'Payment failed with status code ${response.statusCode}: $message',
+        snackPosition: SnackPosition.TOP,
+      );
+      print('Payment failed with status code ${response.statusCode}: $message');
+    }
   }
 }
-
-//onpressed functionality
-
